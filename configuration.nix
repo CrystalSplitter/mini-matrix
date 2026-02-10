@@ -8,6 +8,8 @@
 {
   imports = [
     ./networking.nix
+    ./nginx.nix
+    ./matrix.nix
   ]
   # Required for Digital Ocean droplets.
   ++ lib.optional (builtins.pathExists ./do-userdata.nix) ./do-userdata.nix
