@@ -1,9 +1,13 @@
 {
-  description = "A very basic flake";
+  description = "PLounge Matrix Chat";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixos-generator = {
+      url = "github:nix-community/nixos-generators/d002ce9b6e7eb467cd1c6bb9aef9c35d191b5453";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -12,15 +16,26 @@
       nixpkgs,
       flake-utils,
       ...
-    }:
+    }@inputs:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = import nixpkgs { inherit system; };
       in
       {
-        packages.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-        packages.default = self.packages.x86_64-linux.hello;
+        packages.${system} = {
+          digitalOceanVM = inputs.nixos-generator.nixosGenerate {
+            inherit system;
+            format = "do"; # DigitalOcean
+            modules = [
+              {
+                # Pin nixpkgs to the flake input.
+                nix.registry.nixpkgs.flake = nixpkgs;
+              }
+              ./configuration.nix
+            ];
+          };
+        };
         formatter = pkgs.nixfmt-tree;
       }
     );
