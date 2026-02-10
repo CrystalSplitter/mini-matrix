@@ -1,4 +1,6 @@
 {
+  lib,
+  modulesPath,
   pkgs,
   ...
 }:
@@ -6,15 +8,25 @@
 {
   imports = [
     ./networking.nix
+  ]
+  # Required for Digital Ocean droplets.
+  ++ lib.optional (builtins.pathExists ./do-userdata.nix) ./do-userdata.nix
+  ++ [
+    (modulesPath + "/virtualisation/digital-ocean-config.nix")
   ];
 
   # Enable flakes.
   nix = {
     package = pkgs.lix;
-    settings.experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
+    settings = {
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      trusted-users = [
+        "@wheel" # Allow sudoers to push Nix closures.
+      ];
+    };
   };
 
   # Set your default locale, as you wish.
@@ -32,7 +44,7 @@
     ripgrep
     tree
   ];
-  
+
   programs.neovim = {
     defaultEditor = true;
   };

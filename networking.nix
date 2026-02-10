@@ -5,7 +5,7 @@
 
 {
   networking = {
-    hostName = "";
+    hostName = "monotone";
     networkmanager.enable = true;
   };
   time.timeZone = "UTC";
