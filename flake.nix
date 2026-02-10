@@ -18,33 +18,36 @@
       flake-utils,
       ...
     }@inputs:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-        modules = [
-          {
-            # Pin nixpkgs to the flake input.
-            nix.registry.nixpkgs.flake = nixpkgs;
-          }
-          ./configuration.nix
-        ];
-      in
-      {
-        packages = {
-          digitalOceanVM = inputs.nixos-generator.nixosGenerate {
-            inherit system;
-            format = "do"; # DigitalOcean
-          };
+    let
+      modules = [
+        {
+          # Pin nixpkgs to the flake input.
+          nix.registry.nixpkgs.flake = nixpkgs;
+        }
+        ./configuration.nix
+      ];
+      formatting = flake-utils.lib.eachDefaultSystem (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          formatter = pkgs.nixfmt-tree;
+        }
+      );
+      targetSystem = "x86_64-linux";
+    in
+    {
+      packages.${targetSystem} = {
+        digitalOceanVM = inputs.nixos-generator.nixosGenerate {
+          system = targetSystem;
+          format = "do"; # DigitalOcean
         };
-        nixosConfigurations.monotone = nixpkgs.lib.nixosSystem {
-          inherit system;
-          inherit modules;
-        };
-        formatter = pkgs.nixfmt-tree;
-      }
-    )
-    // {
+      };
+      nixosConfigurations.monotone = nixpkgs.lib.nixosSystem {
+        system = targetSystem;
+        inherit modules;
+      };
       deploy.nodes = {
         monotone = {
           # Don't forget to set your hostname appropriately!
@@ -60,5 +63,6 @@
       checks = builtins.mapAttrs (
         system: deployLib: deployLib.deployChecks self.deploy
       ) inputs.deploy-rs.lib;
-    };
+    }
+    // formatting;
 }
