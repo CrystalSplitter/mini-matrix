@@ -42,6 +42,7 @@
         digitalOceanVM = inputs.nixos-generator.nixosGenerate {
           system = targetSystem;
           format = "do"; # DigitalOcean
+          inherit modules;
         };
       };
       nixosConfigurations.monotone = nixpkgs.lib.nixosSystem {
