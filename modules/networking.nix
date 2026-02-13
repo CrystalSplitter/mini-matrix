@@ -1,10 +1,11 @@
 {
   pkgs,
+  config,
   ...
 }:
 let
   # TODO: Thread this through from the flake?
-  domainName = "crystalwobsite.gay";
+  domainName = "matrix.crystalwobsite.gay";
 in
 {
   networking = {
@@ -22,23 +23,23 @@ in
 
   networking.firewall.allowedTCPPorts = [
     22 # SSH
-    80 # HTTP Web server
+    80 # HTTP Web server (needed for ACME)
     443 # SSL Matrix Server-to-Client
     8448 # Matrix Server-to-Server, change later?
   ];
 
   # SSL Certificates
-  # security.acme = {
-  #   acceptTerms = true;
-  #   defaults.email = "crystal@${domainName}";
-  #   certs = {
-  #     "${domainName}" = {
-  #       group = config.services.nginx.group;
-  #       extraDomainNames = [
-  #         "mail.${domainName}"
-  #         "www.${domainName}"
-  #       ];
-  #     };
-  #   };
-  # };
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = "crystal@crystalwobsite.gay";
+      webroot = "/var/lib/acme/acme-challenge/";
+    };
+    certs = {
+      "${domainName}" = {
+        group = config.services.nginx.group;
+        # environmentFile = "/etc/cloudflare_token"
+      };
+    };
+  };
 }
