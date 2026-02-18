@@ -40,6 +40,7 @@
     fastfetch # Fetch backend.
     fd
     fish
+    htop
     hyfetch # Fetch to show our system is working.
     iotop
     neovim # Change to your favourite tiny text editor.
