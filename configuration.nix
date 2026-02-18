@@ -57,7 +57,8 @@
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     openssh = {
       authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO42UEA9H6mEndCG/q7VpspuOOMorfVtMQTk3XuyZFXV"
+        # TODO: ACTUALLY REPLACE WITH YOUR KEY.
+        ""
       ];
     };
   };
